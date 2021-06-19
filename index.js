@@ -19,7 +19,7 @@
 	overallPlaytime.querySelector(".bottom_controls").remove()
 	overallPlaytime.querySelector(".gameListRowLogo a").removeAttribute("href")
 	try { overallPlaytime.querySelector(".recentAchievements").remove() } catch { }
-	overallPlaytime.querySelector(".hours_played").innerText = `${total.toFixed(0)} hrs on record`
+	overallPlaytime.querySelector(".hours_played").innerText = `${total.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} hrs on record`
 	overallPlaytime.querySelector(".game_capsule").src = "https://cdn.cloudflare.steamstatic.com/steam/apps/753/capsule_184x69.jpg"
 	document.querySelector("#games_list_rows").insertBefore(overallPlaytime, document.querySelector(".gameListRow"))
 
