@@ -1,0 +1,20 @@
+{
+	"manifest_version": 2,
+	"name": "SteamPTP",
+	"description": "Steam PlayTime Percentage",
+	"version": "0.1.0",
+	"content_scripts": [{
+		"matches": [
+			"*://steamcommunity.com/id/*/games/?tab=all*",
+			"*://steamcommunity.com/profiles/*/games/?tab=all*"
+		],
+		"js": ["index.js"]
+	}],
+	"permissions": [
+		"*://steamcommunity.com/*"
+	],
+	"icons": {
+		"48": "assets/icon48.png",
+		"128": "assets/icon128.png"
+	}
+}
