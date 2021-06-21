@@ -1,3 +1,20 @@
+// ==UserScript==
+// @name            SteamPTP
+// @icon            https://raw.githubusercontent.com/octoman90/SteamPTP/master/assets/icon48.png
+// @version         0.1.0
+// @description     A Chrome extension that displays total playtime and playtime percentage for each game in Steam profiles
+// @author          man90 (https://github.com/octoman90)
+// @namespace       https://github.com/octoman90/SteamPTP/
+// @updateURL       https://github.com/octoman90/SteamPTP/raw/master/index.user.js
+// @downloadURL     https://github.com/octoman90/SteamPTP/raw/master/index.user.js
+// @supportURL      https://github.com/octoman90/SteamPTP/issues
+// @license         GPL-3.0
+// @match           *://steamcommunity.com/id/*/games/?tab=all*
+// @match           *://steamcommunity.com/profiles/*/games/?tab=all*
+// @grant           none
+// @run-at          idle
+// ==/UserScript==
+
 (function () {
 	"use strict"
 
@@ -31,4 +48,4 @@
 		// Append percentage to the elements
 		playtime.innerText += ` (${percentage.toFixed(1)}%)`
 	})
-})();
+})()

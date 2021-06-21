@@ -8,7 +8,7 @@
 			"*://steamcommunity.com/id/*/games/?tab=all*",
 			"*://steamcommunity.com/profiles/*/games/?tab=all*"
 		],
-		"js": ["index.js"]
+		"js": ["index.user.js"]
 	}],
 	"permissions": [
 		"*://steamcommunity.com/*"
