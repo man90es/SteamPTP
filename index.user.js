@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            SteamPTP
 // @icon            https://raw.githubusercontent.com/octoman90/SteamPTP/master/assets/icon48.png
-// @version         0.1.1
+// @version         0.1.2
 // @description     A Chrome extension that displays total playtime and playtime percentage for each game in Steam profiles
 // @author          man90 (https://github.com/octoman90)
 // @namespace       https://github.com/octoman90/SteamPTP/
@@ -34,7 +34,7 @@
 	overallPlaytime.id = "game_753"
 	overallPlaytime.querySelector(".gameListRowItemName").innerText = "Overall"
 	overallPlaytime.querySelector(".bottom_controls").remove()
-    overallPlaytime.querySelector(".gameListRowItemTopSecondary").remove()
+	overallPlaytime.querySelector(".gameListRowItemTopSecondary").remove()
 	overallPlaytime.querySelector(".gameListRowLogo a").removeAttribute("href")
 	try { overallPlaytime.querySelector(".recentAchievements").remove() } catch { }
 	overallPlaytime.querySelector(".hours_played").innerText = `${total.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} hrs on record`
@@ -44,9 +44,9 @@
 	// Add playtime percentages
 	playtimeH5s.forEach((playtime) => {
 		// Calculate percentage
-		const percentage = parsePlaytime(playtime.innerText) / total * 100
+		const percentage = (parsePlaytime(playtime.innerText) / total * 100).toFixed(1)
 
 		// Append percentage to the elements
-		playtime.innerText += ` (${percentage.toFixed(1)}%)`
+		playtime.innerText += ` (${percentage - Math.floor(percentage) >= 0.05 ? percentage : Math.round(percentage)}%)`
 	})
 })()
