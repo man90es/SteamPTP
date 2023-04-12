@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            SteamPTP
 // @icon            https://raw.githubusercontent.com/octoman90/SteamPTP/master/assets/icon48.png
-// @version         0.1.2
+// @version         0.2.0
 // @description     A Chrome extension that displays total playtime and playtime percentage for each game in Steam profiles
 // @author          man90 (https://github.com/octoman90)
 // @namespace       https://github.com/octoman90/SteamPTP/
@@ -15,38 +15,103 @@
 // @run-at          idle
 // ==/UserScript==
 
-(function () {
+(() => {
 	"use strict"
 
-	const parsePlaytime = str => parseFloat(str.replaceAll(",", ""))
+	// Function that takes a list of game card elements and outputs
+	// a list of playtimes as numbers and the sum
+	function parseAndCalc(playtimeElements) {
+		const parsedPlaytimes = playtimeElements
+			.map(el => {
+				const str = el.childNodes[1]?.textContent
 
-	// Find playtime elements
-	const playtimeH5s = [...document.querySelectorAll(".hours_played")]
-		.filter(h5 => h5.innerText.length > 0)
+				// This here is the main reason why this script
+				// won't work for non-English interfaces
+				const inMinutes = /minutes/i.test(str)
 
-	// Calculate total playtime
-	const total = playtimeH5s
-		.map(playtime => parsePlaytime(playtime.innerText))
-		.reduce((acc, val) => acc + val, 0)
+				return parseFloat(str.replaceAll(",", "")) / (inMinutes ? 60 : 1)
+			})
 
-	// Add the overall playtime entry
-	const overallPlaytime = document.querySelector(".gameListRow").cloneNode(true)
-	overallPlaytime.id = "game_753"
-	overallPlaytime.querySelector(".gameListRowItemName").innerText = "Overall"
-	overallPlaytime.querySelector(".bottom_controls").remove()
-	overallPlaytime.querySelector(".gameListRowItemTopSecondary").remove()
-	overallPlaytime.querySelector(".gameListRowLogo a").removeAttribute("href")
-	try { overallPlaytime.querySelector(".recentAchievements").remove() } catch { }
-	overallPlaytime.querySelector(".hours_played").innerText = `${total.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} hrs on record`
-	overallPlaytime.querySelector(".game_capsule").src = "https://cdn.cloudflare.steamstatic.com/steam/apps/753/capsule_184x69.jpg"
-	document.querySelector("#games_list_rows").insertBefore(overallPlaytime, document.querySelector(".gameListRow"))
+		return {
+			playtimes: parsedPlaytimes,
+			total: parsedPlaytimes.reduce((acc, val) => acc + val),
+		}
+	}
 
-	// Add playtime percentages
-	playtimeH5s.forEach((playtime) => {
-		// Calculate percentage
-		const percentage = (parsePlaytime(playtime.innerText) / total * 100).toFixed(1)
+	// Function that adds playtime percentage to a given game card
+	function injectPercentage(element, playtime, total) {
+		const percentage = (playtime / total * 100).toFixed(1)
+		if (0 === parseFloat(percentage)) {
+			return
+		}
 
-		// Append percentage to the elements
-		playtime.innerText += ` (${percentage - Math.floor(percentage) >= 0.05 ? percentage : Math.round(percentage)}%)`
+		element.innerHTML += ` (${percentage}%)`
+	}
+
+	// Function that adds a total playtime text to the page
+	function injectTotal(total) {
+		if (total < 1) {
+			return
+		}
+
+		const totalElement = document.createElement("div")
+		totalElement.innerText = `${total.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} hours`
+		totalElement.style.marginRight = "1rem"
+		totalElement.style.placeSelf = "center end"
+
+		const privacySettingsLink = document.querySelector("[class^=gameslistapp_PrivacySettingsLink]")
+		const bar = privacySettingsLink.parentNode
+		bar.style.gridTemplateColumns = "auto 1fr auto auto"
+		bar.style.gridTemplateAreas = "\"search totalPlaytime bothOwned sort\""
+
+		bar.insertBefore(totalElement, privacySettingsLink)
+	}
+
+	// Main function that gathers all game cards on the page
+	// And launches the processing
+	function processPlaytimes() {
+		// Find playtime elements
+		const playtimeH5s = [...document.querySelectorAll("[class^=gameslistitems_Hours]")]
+		const { playtimes, total } = parseAndCalc(playtimeH5s)
+
+		// Add playtime percentages
+		playtimeH5s.forEach((el, i) => {
+			injectPercentage(el, playtimes[i], total)
+		})
+		injectTotal(total)
+	}
+
+	// Observer catches the app adding game cards
+	// If there's a pause of at least 100ms the processing function is fired
+	// It would be nicer to process them card by card whenever one gets added
+	// but I CBA to hack into React apps any farther
+	let t = null
+
+	const observer = new MutationObserver((mutationList, observer) => {
+		for (const mutation of mutationList) {
+			for (const node of mutation.addedNodes) {
+				if (!node.className?.startsWith("gameslistitems_GamesListItemContainer")) {
+					continue
+				}
+
+				if (t) {
+					clearTimeout(t)
+				}
+
+				t = setTimeout(() => {
+					observer.disconnect()
+					processPlaytimes()
+
+					// There may be a problem if it takes the browser more than 100ms
+					// to add the next card, but it works for me
+				}, 100)
+			}
+		}
+	})
+
+	observer.observe(document.querySelector("#application_root"), {
+		attributes: false,
+		childList: true,
+		subtree: true,
 	})
 })()
