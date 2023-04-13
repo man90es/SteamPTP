@@ -17,8 +17,7 @@ SteamPTP is a browser extension that displays total playtime and playtime percen
 5. Click the `Load unpacked` button and select the unzipped directory.
 
 ## Known bugs
-- Total playtime is not displayed in others' game lists
-- Percentages sometimes disappear
+- Shown percentages disappear after searching, filtering or sorting the list
 
 ## License
 [GPL-3.0](LICENSE)

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            SteamPTP
 // @icon            https://raw.githubusercontent.com/octoman90/SteamPTP/master/assets/icon48.png
-// @version         0.2.0
+// @version         0.2.1
 // @description     A Chrome extension that displays total playtime and playtime percentage for each game in Steam profiles
 // @author          man90 (https://github.com/octoman90)
 // @namespace       https://github.com/octoman90/SteamPTP/
@@ -55,16 +55,16 @@
 		}
 
 		const totalElement = document.createElement("div")
-		totalElement.innerText = `${total.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} hours`
+		totalElement.innerText = `Total: ${total.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} hours`
 		totalElement.style.marginRight = "1rem"
 		totalElement.style.placeSelf = "center end"
 
-		const privacySettingsLink = document.querySelector("[class^=gameslistapp_PrivacySettingsLink]")
-		const bar = privacySettingsLink.parentNode
+		const nextElement = document.querySelector("[class^=gameslistapp_PrivacySettingsLink], [class^=gameslistapp_BothOwnedFilter]")
+		const bar = nextElement.parentNode
 		bar.style.gridTemplateColumns = "auto 1fr auto auto"
 		bar.style.gridTemplateAreas = "\"search totalPlaytime bothOwned sort\""
 
-		bar.insertBefore(totalElement, privacySettingsLink)
+		bar.insertBefore(totalElement, nextElement)
 	}
 
 	// Main function that gathers all game cards on the page
